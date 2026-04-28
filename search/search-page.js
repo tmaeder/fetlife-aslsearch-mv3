@@ -15,7 +15,6 @@ window.addEventListener("unhandledrejection", e => __earlyErr(e.reason?.message 
 console.log("[flal] search-page.js loaded");
 
 import { crawl } from "./crawler.js";
-import { applyFilters } from "./filters.js";
 import { fetchProfile, buildDeepPredicate } from "./profile-fetch.js";
 import { geocode, haversineKm } from "./distance.js";
 import { expandQuery, detectIntent } from "./expander.js";
@@ -123,7 +122,6 @@ const state = {
   filterText: "",
   abortCtl: null,
   hideSeen: false,
-  density: "comfort",
   cursorIdx: 0,
   recentNicks: new Set(),
   seenSet: new Set(),
@@ -154,11 +152,9 @@ async function refreshLists() {
   state.pinnedSet = new Set(Object.keys(pin));
   state.notesMap = n;
   state.prefs = p;
-  state.density = p.density;
   state.homeLocation = p.homeLocation;
   document.getElementById("moreDetails").open = !!p.moreOpen;
   document.getElementById("qf-distance").hidden = !p.homeLocation;
-  document.querySelector("#results-table")?.classList.toggle("density-compact", state.density === "compact");
   // gather recent search nicknames for cross-search dedupe badge
   const hist = await historyStore.list();
   const recent = new Set();
