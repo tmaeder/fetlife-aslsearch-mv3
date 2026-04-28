@@ -14,7 +14,7 @@ const root = resolve(here, "..");
 const watcher = chokidar.watch([
   "manifest.json",
   "background/**/*", "content/**/*", "search/**/*",
-  "popup/**/*", "options/**/*", "offscreen/**/*", "storage/**/*",
+  "options/**/*", "storage/**/*", "_locales/**/*",
 ], {
   cwd: root,
   ignored: ["**/.DS_Store", "node_modules/**", "dist/**", "test/**"],

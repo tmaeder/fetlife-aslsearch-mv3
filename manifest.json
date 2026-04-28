@@ -15,7 +15,7 @@
     "service_worker": "background/service_worker.js",
     "type": "module"
   },
-  "permissions": ["storage", "tabs", "alarms", "notifications", "offscreen", "contextMenus", "scripting", "sidePanel"],
+  "permissions": ["storage", "tabs", "alarms", "notifications", "contextMenus", "scripting", "sidePanel"],
   "host_permissions": ["https://fetlife.com/*", "https://nominatim.openstreetmap.org/*"],
   "options_page": "options/options.html",
   "content_scripts": [

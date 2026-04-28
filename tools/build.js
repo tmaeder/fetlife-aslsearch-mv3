@@ -17,8 +17,9 @@ const zipPath = join(distDir, `fetlife-aslsearch-mv3-v${version}.zip`);
 
 const includes = [
   "manifest.json",
-  "background", "content", "icons", "offscreen",
-  "options", "popup", "search", "storage",
+  "background", "content", "icons",
+  "options", "search", "storage",
+  "_locales",
 ];
 const excludes = ["**/*.test.js", "**/.DS_Store"];
 

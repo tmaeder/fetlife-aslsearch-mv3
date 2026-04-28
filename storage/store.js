@@ -1,6 +1,6 @@
 // Single source of truth for chrome.storage access.
 // Layout:
-//   local: seen, blocked, notes, history, cache, telemetry, crawlResume
+//   local: seen, blocked, pinned, notes, history, cache, profileWatches, crawlResume
 //   sync:  savedSearches, scheduled, homeLocation, prefs
 
 const L = chrome.storage.local;
@@ -156,7 +156,6 @@ export const scheduled = {
 export const prefs = {
   async get() {
     return {
-      density: await get(S, "density", "comfort"),
       moreOpen: await get(S, "moreOpen", false),
       paranoidMode: await get(S, "paranoidMode", false),
       cacheTtlMs: await get(S, "cacheTtlMs", 24 * 60 * 60 * 1000),
@@ -167,18 +166,6 @@ export const prefs = {
     };
   },
   async set(patch) { await S.set(patch); },
-};
-
-export const telemetry = {
-  async record(selector, hit) {
-    const all = await get(L, "telemetry", {});
-    const k = selector;
-    if (!all[k]) all[k] = { hits: 0, misses: 0 };
-    if (hit) all[k].hits++; else all[k].misses++;
-    await set(L, "telemetry", all);
-  },
-  async report() { return get(L, "telemetry", {}); },
-  async reset() { await set(L, "telemetry", {}); },
 };
 
 export const crawlResume = {
