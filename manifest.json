@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "version": "0.3.0",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_title": "FetLife ASL Search"
+  },
+  "side_panel": {
+    "default_path": "search/search-page.html"
+  },
+  "background": {
+    "service_worker": "background/service_worker.js",
+    "type": "module"
+  },
+  "permissions": ["storage", "tabs", "alarms", "notifications", "offscreen", "contextMenus", "scripting", "sidePanel"],
+  "host_permissions": ["https://fetlife.com/*", "https://nominatim.openstreetmap.org/*"],
+  "options_page": "options/options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://fetlife.com/*"],
+      "js": ["content/fetlife.js"],
+      "css": ["content/fetlife.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["search/search-page.html", "icons/*"],
+      "matches": ["https://fetlife.com/*"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
+      }
+    }
+  }
+}

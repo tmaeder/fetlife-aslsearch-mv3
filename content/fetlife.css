@@ -1,0 +1,74 @@
+.flal-toolbar {
+  display: inline-flex;
+  gap: 6px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+.flal-toolbar a {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #e6e6e6;
+  text-decoration: none;
+  font-size: 12px;
+}
+.flal-toolbar a:hover {
+  background: rgba(185, 29, 29, 0.2);
+  border-color: #b91d1d;
+}
+
+.flal-pat-warning {
+  background: #b91d1d;
+  color: white;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 4px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flal-pat-warning a {
+  color: white;
+  text-decoration: underline;
+}
+
+.flal-search-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 4px 10px;
+  background: #b91d1d;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+.flal-search-button:hover { background: #d62525; }
+
+.flal-note {
+  background: rgba(255, 213, 79, 0.15);
+  border: 1px solid rgba(255, 213, 79, 0.4);
+  color: #ffd54f;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.flal-note strong { color: #ffeb8a; margin-right: 6px; }
+
+.flal-seen-badge {
+  display: inline-block;
+  background: #2e8b57;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: 600;
+}

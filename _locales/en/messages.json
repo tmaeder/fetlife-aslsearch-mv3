@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "FetLife ASL Search",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Side-panel ASL filtering, deep profile filters, watchers and profile tools for FetLife.",
+    "description": "Extension short description"
+  },
+  "search": { "message": "Search" },
+  "stop": { "message": "Stop" },
+  "more": { "message": "More" },
+  "saved": { "message": "Saved" },
+  "history": { "message": "History" },
+  "lists": { "message": "Seen / Blocked" },
+  "watchers": { "message": "Watchers" },
+  "compare": { "message": "Compare" },
+  "loggedOut": {
+    "message": "Logged out. Sign in at fetlife.com and retry.",
+    "description": "Status when FetLife session is missing"
+  },
+  "typeQueryFirst": {
+    "message": "Type a query first.",
+    "description": "Status when search submitted with empty query"
+  }
+}

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FetLife ASL Search</title>
+<link rel="stylesheet" href="search-page.css">
+</head>
+<body>
+<header>
+  <h1>FetLife ASL Search</h1>
+  <nav class="header-nav">
+    <button type="button" class="ghost" data-panel="saved">Saved</button>
+    <button type="button" class="ghost" data-panel="history">History</button>
+    <button type="button" class="ghost" data-panel="lists">Seen / Blocked</button>
+    <button type="button" class="ghost" data-panel="schedule">Watchers</button>
+    <a class="open-fl" href="https://fetlife.com/" target="_blank" rel="noopener">fetlife.com ↗</a>
+  </nav>
+</header>
+
+<aside class="drawer" id="drawer" hidden>
+  <div class="drawer-head">
+    <h2 id="drawer-title">Saved</h2>
+    <button type="button" id="drawer-close" class="ghost">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<form id="search-form" class="simple">
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span id="mode-badge" class="mode-badge" hidden></span>
+      <input type="text" id="q" name="q" placeholder="text query, or paste fetlife.com/p/{country}/{city}" required autofocus autocomplete="off">
+      <button type="button" id="q-clear" class="q-clear" hidden title="Clear">✕</button>
+    </div>
+    <button type="submit" id="run">Search</button>
+    <button type="button" id="cancel" hidden>Stop</button>
+    <button type="button" id="save" class="ghost" title="Save this search">★</button>
+  </div>
+  <div id="recent-searches" class="recent-searches" hidden></div>
+  <div id="resume-banner" class="banner" hidden></div>
+  <div id="empty-hint" class="hint-banner" hidden></div>
+  <div id="parse-warning" class="banner warn" hidden></div>
+
+  <div class="quick">
+    <span class="qf">
+      <span class="qf-label">Age</span>
+      <input type="number" id="ageMin" min="18" max="120" placeholder="–">
+      <span class="qf-sep">–</span>
+      <input type="number" id="ageMax" min="18" max="120" placeholder="–">
+    </span>
+
+    <span class="qf">
+      <span class="qf-label">Sex</span>
+      <span class="chips" id="sexes" role="group" aria-label="Sex">
+        <label><input type="checkbox" value="M"><span>M</span></label>
+        <label><input type="checkbox" value="F"><span>F</span></label>
+        <label><input type="checkbox" value="T"><span>Trans</span></label>
+      </span>
+    </span>
+
+    <span class="qf">
+      <span class="qf-label">Role</span>
+      <span class="chips" id="rolesChips" role="group" aria-label="Role">
+        <label><input type="checkbox" value="sub"><span>Sub</span></label>
+        <label><input type="checkbox" value="dom"><span>Dom</span></label>
+        <label><input type="checkbox" value="switch"><span>Switch</span></label>
+        <label><input type="checkbox" value="top"><span>Top</span></label>
+        <label><input type="checkbox" value="bottom"><span>Bottom</span></label>
+      </span>
+    </span>
+
+    <span class="qf">
+      <span class="qf-label">Loc</span>
+      <input type="text" id="locationSubstring" placeholder="Berlin, Zurich, Switzerland…" style="flex:1; min-width:0;">
+    </span>
+
+    <span class="qf qf-distance" hidden id="qf-distance">
+      <span class="qf-label">Within</span>
+      <input type="number" id="maxKm" min="1" max="20000" placeholder="km">
+    </span>
+
+    <div class="loc-chips" id="locChips" hidden></div>
+
+    <details class="more" id="moreDetails">
+      <summary>More</summary>
+      <div class="more-grid">
+        <label>Role (other)<input type="text" id="rolesOther" placeholder="e.g. exploring, hedonist"></label>
+        <label>Sex (other)
+          <span class="chips inline" id="sexesOther">
+            <label><input type="checkbox" value="FtM"><span>FtM</span></label>
+            <label><input type="checkbox" value="MtF"><span>MtF</span></label>
+          </span>
+        </label>
+        <label>Location regex (advanced)<input type="text" id="locationRegex" placeholder="e.g. Switzerland|Berlin — optional"></label>
+        <label>Nickname regex<input type="text" id="nicknameRegex" placeholder="e.g. ^kinky"></label>
+        <label class="cb"><input type="checkbox" id="hasPics"> Has pictures</label>
+        <label class="cb"><input type="checkbox" id="hasVids"> Has videos</label>
+        <label>Min pics<input type="number" id="minPics" min="0" placeholder="0"></label>
+        <label>Min vids<input type="number" id="minVids" min="0" placeholder="0"></label>
+        <label>Supporter
+          <select id="supporter">
+            <option value="">any</option>
+            <option value="true">supporters only</option>
+            <option value="false">non-supporters</option>
+          </select>
+        </label>
+        <label class="cb" title="Expand search terms with synonyms (sub→submissive,bottom)"><input type="checkbox" id="expandSynonyms"> Expand synonyms</label>
+        <label class="cb" title="Cached results from same query are reused if fresh"><input type="checkbox" id="useCache" checked> Use cache</label>
+        <label class="cb" title="Don't write this search to history or cache"><input type="checkbox" id="incognito"> 🕶 Incognito (no history/cache)</label>
+
+        <fieldset class="sub-fs">
+          <legend>Deep filter (visits each profile — slow)</legend>
+          <label class="cb"><input type="checkbox" id="deepEnable"> Enable deep filtering</label>
+          <label>Bio regex<input type="text" id="bioRegex" placeholder="e.g. consultant|swiss"></label>
+          <label>Fetishes (any of)<input type="text" id="fetishesAny" placeholder="e.g. rope, impact"></label>
+          <label>Orientation
+            <span class="chips inline" id="orientationChips" role="group" aria-label="Orientation"></span>
+          </label>
+          <label>Looking for
+            <span class="chips inline" id="lookingForChips" role="group" aria-label="Looking for"></span>
+          </label>
+          <label>Account type
+            <select id="accountType">
+              <option value="">any</option>
+              <option value="free">Free</option>
+              <option value="supporter">Supporter</option>
+              <option value="lifetime_supporter">Lifetime Supporter</option>
+              <option value="employee">FetLife Employee</option>
+              <option value="greeter_alumni">Greeter Alumni</option>
+            </select>
+          </label>
+          <label>Relationship status
+            <select id="relationshipStatus">
+              <option value="">any</option>
+              <option value="single">Single only</option>
+              <option value="partnered">Partnered only</option>
+            </select>
+          </label>
+          <label>Min friends<input type="number" id="minFriends" min="0" placeholder="0"></label>
+          <label class="cb"><input type="checkbox" id="verifiedOnly"> Profile verified only</label>
+          <label class="cb"><input type="checkbox" id="supporterOnly"> Supporter only</label>
+        </fieldset>
+
+        <label>Max pages<input type="number" id="maxPages" min="1" max="100" value="10"></label>
+        <label>Stop after N matches<input type="number" id="maxMatches" min="1" max="2000" value="200"></label>
+        <label>Delay (ms)<input type="number" id="delayMs" min="500" max="10000" value="1500"></label>
+        <button type="button" id="clear" class="link">Reset all</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="status" id="status" aria-live="polite" hidden></div>
+  <div id="compare-bar" class="compare-bar" hidden>
+    <span><span id="compare-count">0</span> selected</span>
+    <button type="button" id="compare-open" class="ghost">Compare</button>
+    <button type="button" id="compare-clear" class="ghost">Clear</button>
+  </div>
+</form>
+
+<section id="results" hidden>
+  <div class="results-header">
+    <h2><span id="matchCount">0</span> matches</h2>
+    <div class="result-tools">
+      <input type="text" id="filterText" placeholder="Filter…">
+      <button type="button" id="hideSeen" class="ghost" title="Hide seen">⊝</button>
+      <button type="button" id="exportCsv" class="ghost" title="Export CSV">CSV</button>
+      <button type="button" id="bulkOpen" class="ghost" title="Open top 10">↗</button>
+    </div>
+  </div>
+  <p class="kbd-hint">Keys: <kbd>j</kbd>/<kbd>k</kbd> move • <kbd>o</kbd> open • <kbd>x</kbd> mark seen • <kbd>b</kbd> block • <kbd>n</kbd> note • <kbd>/</kbd> filter</p>
+  <div id="fetish-summary" class="fetish-summary" hidden></div>
+  <div id="cards-list" role="list"></div>
+</section>
+
+<dialog id="note-dialog">
+  <form method="dialog" class="note-form">
+    <h3>Private note <span id="note-target"></span></h3>
+    <textarea id="note-text" rows="4"></textarea>
+    <menu>
+      <button value="cancel">Cancel</button>
+      <button value="save" id="note-save">Save</button>
+    </menu>
+  </form>
+</dialog>
+
+<script type="module" src="search-page.js"></script>
+</body>
+</html>
