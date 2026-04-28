@@ -54,8 +54,8 @@ All evidence-backed. Grouped by risk.
 ## Plan
 
 Three batches, ordered low→high risk:
-1. **Batch 1** — drop dead exports/functions in `content/selectors.js`, dead import in `search-page.js`, dead density code.
-2. **Batch 2** — remove `popup/` directory.
-3. **Batch 3** — remove offscreen path: inline `parseSearchPage` in SW, delete `offscreen/`, drop `offscreen` permission from manifest, remove dead telemetry namespace.
+1. ✅ **Batch 1** — drop dead exports/functions in `content/selectors.js`, dead import in `search-page.js`, dead density code, dead telemetry namespace. (commit `5f38181`)
+2. ✅ **Batch 2** — remove `popup/` directory. (commit `384a15b`)
+3. ✅ **Batch 3** — remove offscreen path: inline `parseSearchPage` in SW, delete `offscreen/`, drop `offscreen` permission. (commit `d581387`)
 
-Each batch: tests must stay 61/61, `node --check` clean.
+Result: 41 → 35 source files. selectors.js 220 → 42 lines. 61/61 tests pass on every commit.
