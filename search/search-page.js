@@ -20,7 +20,7 @@ import { fetchProfile, buildDeepPredicate } from "./profile-fetch.js";
 import { geocode, haversineKm } from "./distance.js";
 import { expandQuery, detectIntent } from "./expander.js";
 import { seen, blocked, pinned, notes, history as historyStore, cache, savedSearches, prefs, crawlResume } from "../storage/store.js";
-import { isPlaceQuery } from "../content/selectors.js";
+import { isPlaceQuery, isGroupQuery } from "../content/selectors.js";
 import { ORIENTATIONS, LOOKING_FOR } from "./vocab.js";
 import { parseActivity } from "./activity-parse.js";
 import { dedupeMap } from "./avatar-dedupe.js";
@@ -1159,6 +1159,10 @@ function updateModeBadge() {
   if (isPlaceQuery(q)) {
     badge.hidden = false;
     badge.textContent = "📍 Place";
+    input.classList.add("with-badge");
+  } else if (isGroupQuery(q)) {
+    badge.hidden = false;
+    badge.textContent = "👥 Group";
     input.classList.add("with-badge");
   } else {
     badge.hidden = true;

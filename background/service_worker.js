@@ -7,7 +7,7 @@
 
 import { savedSearches, scheduled, prefs, cache, profileWatches } from "../storage/store.js";
 import { parseProfile } from "../search/profile-fetch.js";
-import { SEARCH_URL, PLACE_URL, isPlaceQuery } from "../content/selectors.js";
+import { SEARCH_URL, PLACE_URL, GROUP_URL, isPlaceQuery, isGroupQuery } from "../content/selectors.js";
 import { buildPredicate } from "../search/filters.js";
 
 const PAT_ALARM = "pat-refresh";
@@ -309,7 +309,9 @@ function diffProfile(a, b) {
 }
 
 async function runWatcher(saved, watcher) {
-  const url = isPlaceQuery(saved.query) ? PLACE_URL(saved.query, 1) : SEARCH_URL(saved.query, 1);
+  const url = isGroupQuery(saved.query) ? GROUP_URL(saved.query, 1)
+            : isPlaceQuery(saved.query) ? PLACE_URL(saved.query, 1)
+            : SEARCH_URL(saved.query, 1);
   const r = await flFetch(url);
   if (r.status !== 200) throw new Error("HTTP " + r.status);
   const parsed = await parseInOffscreen(r.html);

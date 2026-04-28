@@ -137,3 +137,31 @@ test("parseSearchPage: scans any component if known names absent", () => {
   assert.equal(r.results.length, 2);
   assert.equal(r.componentName, "SomeFutureComponent");
 });
+
+import { GROUP_URL, isGroupQuery } from "../content/selectors.js";
+
+test("isGroupQuery: detects forms", () => {
+  assert.ok(isGroupQuery("https://fetlife.com/groups/322506"));
+  assert.ok(isGroupQuery("/groups/322506/members"));
+  assert.ok(isGroupQuery("groups/322506"));
+  assert.ok(!isGroupQuery("zurich"));
+});
+
+test("GROUP_URL: builds /members URL", () => {
+  assert.equal(GROUP_URL("https://fetlife.com/groups/322506"),
+    "https://fetlife.com/groups/322506/members");
+  assert.equal(GROUP_URL("/groups/322506/members", 3),
+    "https://fetlife.com/groups/322506/members?page=3");
+  assert.equal(GROUP_URL("groups/322506"),
+    "https://fetlife.com/groups/322506/members");
+});
+
+test("parseSearchPage: GroupMembers component recognized", () => {
+  const json = JSON.stringify({ users: SAMPLE_USERS, group: { id: 1, name: "Test" } }).replace(/"/g, "&quot;");
+  const html = `<html><head><meta name="csrf-token" content="x"></head><body>
+<div data-component="GroupMembers" data-props="${json}"></div>
+</body></html>`;
+  const r = parseSearchPage(html);
+  assert.equal(r.componentName, "GroupMembers");
+  assert.equal(r.results.length, 2);
+});

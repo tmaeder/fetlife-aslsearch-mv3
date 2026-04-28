@@ -24,7 +24,7 @@ function extractDataProps(html, componentName) {
   try { return JSON.parse(decodeEntities(m[1])); } catch { return null; }
 }
 
-const KNOWN_LIST_COMPONENTS = ["SearchUserList", "MemberList", "KinksterList", "UserList", "PlaceUserList"];
+const KNOWN_LIST_COMPONENTS = ["SearchUserList", "GroupMembers", "MemberList", "KinksterList", "UserList", "PlaceUserList"];
 
 function findUserListProps(html) {
   for (const name of KNOWN_LIST_COMPONENTS) {

@@ -1,10 +1,12 @@
-import { SEARCH_URL, PLACE_URL, isPlaceQuery } from "../content/selectors.js";
+import { SEARCH_URL, PLACE_URL, GROUP_URL, isPlaceQuery, isGroupQuery } from "../content/selectors.js";
 import { parseSearchPage } from "./parser.js";
 import { buildPredicate } from "./filters.js";
 import { crawlResume, cache } from "../storage/store.js";
 
 function urlForPage(query, page) {
-  return isPlaceQuery(query) ? PLACE_URL(query, page) : SEARCH_URL(query, page);
+  if (isGroupQuery(query)) return GROUP_URL(query, page);
+  if (isPlaceQuery(query)) return PLACE_URL(query, page);
+  return SEARCH_URL(query, page);
 }
 
 const DEFAULT_DELAY_MS = 1500;

@@ -23,6 +23,23 @@ export function isPlaceQuery(s) {
   return typeof s === "string" && (/^https?:\/\/fetlife\.com\/p\//.test(s) || /^\/p\//.test(s) || /^p\//.test(s));
 }
 
+// Group-members URL: /groups/{id}/members[?page=N]
+export function GROUP_URL(input, page = 1) {
+  let path;
+  if (/^https?:\/\//.test(input)) {
+    try { path = new URL(input).pathname; } catch { path = input; }
+  } else if (input.startsWith("/")) path = input;
+  else if (/^groups\//.test(input)) path = "/" + input;
+  else path = "/groups/" + input;
+  if (!/\/members\/?$/.test(path)) path = path.replace(/\/?$/, "/members");
+  const sep = path.includes("?") ? "&" : "?";
+  return `https://fetlife.com${path}${page > 1 ? `${sep}page=${page}` : ""}`;
+}
+
+export function isGroupQuery(s) {
+  return typeof s === "string" && (/^https?:\/\/fetlife\.com\/groups\//.test(s) || /^\/groups\//.test(s) || /^groups\/\d+/.test(s));
+}
+
 export function isLoggedIn(doc) {
   // FetLife is now an SSR'd app where logged-out responses inject a red banner
   // "you need to be logged in" plus the "Welcome Home / Log In to FetLife" form.
