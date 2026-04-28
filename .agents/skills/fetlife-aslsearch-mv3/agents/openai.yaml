@@ -1,0 +1,6 @@
+interface:
+  display_name: "Fetlife Aslsearch Mv3"
+  short_description: "Repo-specific patterns and workflows for fetlife-aslsearch-mv3"
+  default_prompt: "Use the fetlife-aslsearch-mv3 repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
