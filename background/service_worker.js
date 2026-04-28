@@ -7,6 +7,7 @@
 
 import { savedSearches, scheduled, prefs, cache, profileWatches } from "../storage/store.js";
 import { parseProfile } from "../search/profile-fetch.js";
+import { parseSearchPage } from "../search/parser.js";
 import { SEARCH_URL, PLACE_URL, GROUP_URL, isPlaceQuery, isGroupQuery } from "../content/selectors.js";
 import { buildPredicate } from "../search/filters.js";
 
@@ -211,33 +212,6 @@ async function maybeClearCache() {
   await chrome.storage.local.set({ cache: all });
 }
 
-let offscreenReady = null;
-async function ensureOffscreen() {
-  if (offscreenReady) return offscreenReady;
-  offscreenReady = (async () => {
-    const has = await chrome.offscreen.hasDocument?.();
-    if (!has) {
-      await chrome.offscreen.createDocument({
-        url: chrome.runtime.getURL("offscreen/offscreen.html"),
-        reasons: ["DOM_PARSER"],
-        justification: "Parse FetLife search HTML",
-      });
-    }
-  })();
-  return offscreenReady;
-}
-
-async function parseInOffscreen(html) {
-  await ensureOffscreen();
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ target: "offscreen", type: "parseSearch", html }, (r) => {
-      if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
-      if (!r?.ok) return reject(new Error(r?.error || "parse failed"));
-      resolve(r.parsed);
-    });
-  });
-}
-
 async function tickWatchers() {
   await tickSavedSearchWatchers();
   await tickProfileWatchers();
@@ -314,7 +288,7 @@ async function runWatcher(saved, watcher) {
             : SEARCH_URL(saved.query, 1);
   const r = await flFetch(url);
   if (r.status !== 200) throw new Error("HTTP " + r.status);
-  const parsed = await parseInOffscreen(r.html);
+  const parsed = parseSearchPage(r.html);
   if (!parsed.loggedIn) throw new Error("logged out");
   const pred = buildPredicate(saved.criteria || {});
   const matched = parsed.results.filter(pred);
