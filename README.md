@@ -1,8 +1,20 @@
-# FetLife Search (MV3) — v0.3.0
+# FetLife Search
 
-Modern Chrome extension successor to [fabacab/fetlife-search](https://github.com/fabacab/fetlife-search). Side-panel ASL filtering, deep-profile filters, place-based search, distance filtering, saved/scheduled watchers with notifications, profile diff watchers, compare panel, avatar duplicate detection, shareable filter URLs, and profile-page tools (TinEye / Google Lens / DDG / Reddit / FabSwingers / PAT-FetLife abuse warnings).
+A side-panel Chrome extension that turns FetLife's free-text search into a structured discovery tool. Layer client-side filters on top of any text query, place URL, or group URL — age, sex, role, orientation, account type, distance from home, looking-for, free-text in bio — without ever leaving the page.
 
-No external server, no Google Apps Script, no jQuery. Self-contained.
+**Highlights**
+- Side-panel UI: search and filter on the side, FetLife in the main window.
+- Search by text, by place (`/p/{country}/{city}`), or by group (`/groups/{id}`) — auto-detected from the query box.
+- Results stream in as pages parse. Stop, resume, cache, or run incognito without writing history.
+- Stable-key filter pickers for orientation / role / looking-for, populated from FetLife's own taxonomy — no fragile string matching.
+- Saved searches and **watchers** that re-run on a schedule and notify you when a new match appears.
+- **Profile diff watchers**: pin specific people, get notified when their bio / roles / activity changes.
+- **Compare panel** for up to four profiles side by side.
+- **Avatar duplicate detection** — flags accounts sharing a CDN attachment ID.
+- Optional **encrypted note vault** (AES-GCM, PBKDF2, session-only key) for private notes you keep on profiles.
+- Profile-page toolbar with reverse-image lookup (TinEye, Google Lens), web nick search, and PAT-FetLife abuse-dataset banners.
+
+Self-contained: no external server, no third-party API key, no jQuery. The only outbound traffic is to FetLife itself and (optionally, when you set a home location) the public OpenStreetMap Nominatim geocoder.
 
 ## Install (unpacked)
 
@@ -90,21 +102,19 @@ tools/dev-watch.js              chokidar reminder watcher
 .github/workflows/test.yml      CI (test + lint)
 ```
 
-## Reliability vs the original 2015 userscript
+## How it works
 
-| Original | Now |
-|---|---|
-| Single 1,695-line file | Modular ES modules |
-| jQuery 2.1.4 | Vanilla |
-| `unsafeWindow`, `GM_*` | `chrome.storage`, `fetch`, message-passing |
-| `setTimeout(5000)` for PAT init | Stored index, synchronous lookup |
-| No request throttling | Configurable delay + jitter, 4-attempt exponential backoff on 429/5xx, parallel concurrency 2 |
-| DOM-scrape selectors, fragile | Structured JSON via `data-component="SearchUserList"` / `"UserProfile"` data-props, with multi-component fallback |
-| Google Apps Script backend | Removed (client-side only) |
-| `setAttribute('onclick', ...)` | `addEventListener` |
-| No login check | HEAD probe before crawl |
-| No resume on interruption | Crawl state persisted, per-page cache flush, resume banner |
-| No login-aware fetch | SW bridge: same-origin fetch via `chrome.scripting` in a managed fetlife tab |
+FetLife is a Vue + Vite single-page app whose server-rendered HTML embeds the page's data inside `data-component="…" data-props="…"` attributes (`SearchUserList`, `UserProfile`, `GroupMembers`). The extension reads that JSON directly — no DOM scraping, no waiting for client-side hydration, no headless browser. A 50 KB HTTP request is enough to extract 20 fully-structured profiles.
+
+Cross-origin cookie attachment is handled by routing the fetch through `chrome.scripting.executeScript` inside an open fetlife.com tab so the request is same-origin and inherits your session.
+
+**Reliability features**
+- Multi-component fallback parser that survives FetLife renaming the Vue component.
+- HEAD-only login probe before each crawl.
+- Configurable delay + jitter, 4-attempt exponential backoff on 429 / 5xx.
+- Parallel page fetching (concurrency 2 by default).
+- Per-page cache flush so closing the panel mid-crawl preserves partial results; resume banner offers to continue.
+- `host_permissions` narrowly scoped to `fetlife.com` (+ `nominatim.openstreetmap.org` when the distance filter is enabled).
 
 ## Privacy
 
@@ -123,7 +133,7 @@ tools/dev-watch.js              chokidar reminder watcher
 
 ## PAT-FetLife data source
 
-The original 2015-era public Google Sheet may be defunct. The extension does not bundle a default dataset. Point **Settings → PAT-FetLife dataset URL** at a JSON endpoint:
+The extension does not bundle a default abuse-report dataset. To enable in-page warnings on flagged profiles, point **Settings → PAT-FetLife dataset URL** at any JSON endpoint:
 
 ```json
 [

@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Side-panel ASL filtering, deep profile filters, watchers and profile tools for FetLife.",
+    "message": "Powerful client-side filters and discovery tools for FetLife search, place, and group pages — in the side panel.",
     "description": "Extension short description"
   },
   "search": { "message": "Search" },
