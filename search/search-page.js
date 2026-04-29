@@ -1154,15 +1154,8 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "/") { document.getElementById("filterText").focus(); e.preventDefault(); }
 });
 
-window.addEventListener("error", e => surfaceError(e.message, e.error?.stack));
-window.addEventListener("unhandledrejection", e => surfaceError(e.reason?.message || String(e.reason), e.reason?.stack));
 function surfaceError(msg, stack) {
-  console.error("flal:", msg, stack);
-  const el = document.getElementById("status");
-  if (!el) return;
-  el.hidden = false;
-  el.className = "status error";
-  el.textContent = "Error: " + msg + (stack ? " (see console)" : "");
+  __earlyErr(String(msg), "", stack || "");
 }
 
 // Hash-encoded shareable filter URL.
