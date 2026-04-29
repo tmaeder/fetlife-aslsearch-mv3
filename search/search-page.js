@@ -1,17 +1,19 @@
 // Surface any error to the page so the user sees it without DevTools.
-const __earlyErr = (msg, src) => {
-  console.error("[flal]", msg, src || "");
-  const el = document.getElementById("status");
-  if (el) {
-    el.hidden = false;
-    el.className = "status error";
-    el.textContent = "Error: " + msg + " (see console)";
-  } else {
-    document.body?.insertAdjacentHTML?.("afterbegin", `<pre style="background:#b91d1d;color:#fff;padding:8px;margin:0;font-size:12px;white-space:pre-wrap">${String(msg).replace(/[<>&]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}</pre>`);
+const __earlyErr = (msg, src, stack) => {
+  console.error("[flal]", msg, src || "", stack || "");
+  let el = document.getElementById("status");
+  if (!el) {
+    el = document.createElement("pre");
+    el.id = "status";
+    el.style.cssText = "background:#3a1212;color:#fff;padding:8px;margin:8px;border-radius:6px;font-size:11px;white-space:pre-wrap;border:1px solid #c14545";
+    document.body?.insertAdjacentElement?.("afterbegin", el);
   }
+  el.hidden = false;
+  el.className = "status error";
+  el.textContent = "Error: " + msg + (src ? "  @ " + src : "") + (stack ? "\n" + stack : "");
 };
-window.addEventListener("error", e => __earlyErr(e.message, e.filename + ":" + e.lineno));
-window.addEventListener("unhandledrejection", e => __earlyErr(e.reason?.message || String(e.reason), "unhandled-rejection"));
+window.addEventListener("error", e => __earlyErr(e.message, (e.filename || "") + ":" + e.lineno, e.error?.stack));
+window.addEventListener("unhandledrejection", e => __earlyErr(e.reason?.message || String(e.reason), "unhandled-rejection", e.reason?.stack));
 console.log("[flal] search-page.js loaded");
 
 import { crawl } from "./crawler.js";
