@@ -630,3 +630,105 @@ dialog#note-dialog::backdrop { background: rgba(0,0,0,0.5); }
 
 /* ── Distance filter ─────────────────────────────────────────────── */
 .qf-distance input { width: 60px; }
+
+/* ── Layout cleanups (denser, less chrome) ───────────────────────── */
+
+/* Header: tight icon row */
+.header-nav button {
+  padding: 4px 7px;
+  font-size: 13px;
+  width: auto;
+}
+
+.kbd-toggle {
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--fg-3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.kbd-toggle:hover { color: var(--fg); border-color: var(--border-2); }
+
+/* Save button: small, low-emphasis next to Search */
+#save {
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-3);
+  font-size: 14px;
+  border-radius: var(--r);
+}
+#save:hover { color: var(--accent); border-color: var(--border-2); }
+
+/* Filter rows: tighter, no per-row labels for chips */
+.qf-age {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qf-age .qf-label { min-width: 28px; font-size: 11px; color: var(--fg-3); }
+
+.qf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 4px 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.qf-loc {
+  display: flex;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+.qf-loc input[type=text] {
+  flex: 1;
+  background: var(--bg);
+  min-width: 0;
+}
+.qf-distance-input {
+  width: 60px;
+  background: var(--bg);
+  text-align: center;
+}
+
+/* Drop the heavy quick container border to a subtle group */
+.quick {
+  padding: 10px 12px;
+  gap: 8px;
+}
+
+/* Results label */
+.results-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* kbd hint inline below tools row */
+.kbd-hint {
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: var(--fg-3);
+  font-size: 10px;
+}
+
+/* Tweak quick container in dense mode */
+form.simple { padding: 14px 16px 0; }

@@ -7,20 +7,19 @@
 </head>
 <body>
 <header>
-  <h1>FetLife ASL Search</h1>
-  <nav class="header-nav">
-    <button type="button" class="ghost" data-panel="saved">Saved</button>
-    <button type="button" class="ghost" data-panel="history">History</button>
-    <button type="button" class="ghost" data-panel="lists">Seen / Blocked</button>
-    <button type="button" class="ghost" data-panel="schedule">Watchers</button>
-    <a class="open-fl" href="https://fetlife.com/" target="_blank" rel="noopener">fetlife.com ↗</a>
+  <nav class="header-nav" aria-label="Drawers">
+    <button type="button" data-panel="saved" title="Saved searches">★</button>
+    <button type="button" data-panel="history" title="History">⏱</button>
+    <button type="button" data-panel="lists" title="Seen / Blocked">⊝</button>
+    <button type="button" data-panel="schedule" title="Watchers">👁</button>
   </nav>
+  <button type="button" id="kbd-toggle" class="kbd-toggle" title="Keyboard shortcuts">?</button>
 </header>
 
 <aside class="drawer" id="drawer" hidden>
   <div class="drawer-head">
     <h2 id="drawer-title">Saved</h2>
-    <button type="button" id="drawer-close" class="ghost">✕</button>
+    <button type="button" id="drawer-close">✕</button>
   </div>
   <div class="drawer-body" id="drawer-body"></div>
 </aside>
@@ -29,12 +28,12 @@
   <div class="search-bar">
     <div class="search-input-wrap">
       <span id="mode-badge" class="mode-badge" hidden></span>
-      <input type="text" id="q" name="q" placeholder="text, fetlife.com/p/{country}/{city}, or fetlife.com/groups/{id}" required autofocus autocomplete="off">
+      <input type="text" id="q" name="q" placeholder="text, place URL, or group URL" required autofocus autocomplete="off">
       <button type="button" id="q-clear" class="q-clear" hidden title="Clear">✕</button>
     </div>
     <button type="submit" id="run">Search</button>
     <button type="button" id="cancel" hidden>Stop</button>
-    <button type="button" id="save" class="ghost" title="Save this search">★</button>
+    <button type="button" id="save" title="Save this search">★</button>
   </div>
   <div id="recent-searches" class="recent-searches" hidden></div>
   <div id="resume-banner" class="banner" hidden></div>
@@ -42,24 +41,18 @@
   <div id="parse-warning" class="banner warn" hidden></div>
 
   <div class="quick">
-    <span class="qf">
+    <div class="qf qf-age">
       <span class="qf-label">Age</span>
       <input type="number" id="ageMin" min="18" max="120" placeholder="–">
       <span class="qf-sep">–</span>
       <input type="number" id="ageMax" min="18" max="120" placeholder="–">
-    </span>
-
-    <span class="qf">
-      <span class="qf-label">Sex</span>
+    </div>
+    <div class="qf-row">
       <span class="chips" id="sexes" role="group" aria-label="Sex">
         <label><input type="checkbox" value="M"><span>M</span></label>
         <label><input type="checkbox" value="F"><span>F</span></label>
         <label><input type="checkbox" value="T"><span>Trans</span></label>
       </span>
-    </span>
-
-    <span class="qf">
-      <span class="qf-label">Role</span>
       <span class="chips" id="rolesChips" role="group" aria-label="Role">
         <label><input type="checkbox" value="sub"><span>Sub</span></label>
         <label><input type="checkbox" value="dom"><span>Dom</span></label>
@@ -67,31 +60,25 @@
         <label><input type="checkbox" value="top"><span>Top</span></label>
         <label><input type="checkbox" value="bottom"><span>Bottom</span></label>
       </span>
-    </span>
-
-    <span class="qf">
-      <span class="qf-label">Loc</span>
-      <input type="text" id="locationSubstring" placeholder="Berlin, Zurich, Switzerland…" style="flex:1; min-width:0;">
-    </span>
-
-    <span class="qf qf-distance" hidden id="qf-distance">
-      <span class="qf-label">Within</span>
-      <input type="number" id="maxKm" min="1" max="20000" placeholder="km">
-    </span>
+    </div>
+    <div class="qf qf-loc">
+      <input type="text" id="locationSubstring" placeholder="Location (Berlin, Zurich, Switzerland…)">
+      <input type="number" id="maxKm" class="qf-distance-input" min="1" max="20000" placeholder="km" hidden>
+    </div>
 
     <div class="loc-chips" id="locChips" hidden></div>
 
     <details class="more" id="moreDetails">
       <summary>More</summary>
       <div class="more-grid">
-        <label>Role (other)<input type="text" id="rolesOther" placeholder="e.g. exploring, hedonist"></label>
+        <label>Role (other)<input type="text" id="rolesOther" placeholder="e.g. exploring"></label>
         <label>Sex (other)
           <span class="chips inline" id="sexesOther">
             <label><input type="checkbox" value="FtM"><span>FtM</span></label>
             <label><input type="checkbox" value="MtF"><span>MtF</span></label>
           </span>
         </label>
-        <label>Location regex (advanced)<input type="text" id="locationRegex" placeholder="e.g. Switzerland|Berlin — optional"></label>
+        <label>Location regex<input type="text" id="locationRegex" placeholder="e.g. Switzerland|Berlin"></label>
         <label>Nickname regex<input type="text" id="nicknameRegex" placeholder="e.g. ^kinky"></label>
         <label class="cb"><input type="checkbox" id="hasPics"> Has pictures</label>
         <label class="cb"><input type="checkbox" id="hasVids"> Has videos</label>
@@ -104,12 +91,12 @@
             <option value="false">non-supporters</option>
           </select>
         </label>
-        <label class="cb" title="Expand search terms with synonyms (sub→submissive,bottom)"><input type="checkbox" id="expandSynonyms"> Expand synonyms</label>
-        <label class="cb" title="Cached results from same query are reused if fresh"><input type="checkbox" id="useCache" checked> Use cache</label>
-        <label class="cb" title="Don't write this search to history or cache"><input type="checkbox" id="incognito"> 🕶 Incognito (no history/cache)</label>
+        <label class="cb"><input type="checkbox" id="expandSynonyms"> Expand synonyms</label>
+        <label class="cb"><input type="checkbox" id="useCache" checked> Use cache</label>
+        <label class="cb"><input type="checkbox" id="incognito"> 🕶 Incognito</label>
 
         <fieldset class="sub-fs">
-          <legend>Deep filter (visits each profile — slow)</legend>
+          <legend>Deep filter (visits each profile)</legend>
           <label class="cb"><input type="checkbox" id="deepEnable"> Enable deep filtering</label>
           <label>Bio regex<input type="text" id="bioRegex" placeholder="e.g. consultant|swiss"></label>
           <label>Fetishes (any of)<input type="text" id="fetishesAny" placeholder="e.g. rope, impact"></label>
@@ -137,12 +124,12 @@
             </select>
           </label>
           <label>Min friends<input type="number" id="minFriends" min="0" placeholder="0"></label>
-          <label class="cb"><input type="checkbox" id="verifiedOnly"> Profile verified only</label>
+          <label class="cb"><input type="checkbox" id="verifiedOnly"> Verified only</label>
           <label class="cb"><input type="checkbox" id="supporterOnly"> Supporter only</label>
         </fieldset>
 
         <label>Max pages<input type="number" id="maxPages" min="1" max="100" value="10"></label>
-        <label>Stop after N matches<input type="number" id="maxMatches" min="1" max="2000" value="200"></label>
+        <label>Stop after N<input type="number" id="maxMatches" min="1" max="2000" value="200"></label>
         <label>Delay (ms)<input type="number" id="delayMs" min="500" max="10000" value="1500"></label>
         <button type="button" id="clear" class="link">Reset all</button>
       </div>
@@ -152,22 +139,32 @@
   <div class="status" id="status" aria-live="polite" hidden></div>
   <div id="compare-bar" class="compare-bar" hidden>
     <span><span id="compare-count">0</span> selected</span>
-    <button type="button" id="compare-open" class="ghost">Compare</button>
-    <button type="button" id="compare-clear" class="ghost">Clear</button>
+    <button type="button" id="compare-open">Compare</button>
+    <button type="button" id="compare-clear">Clear</button>
   </div>
 </form>
 
 <section id="results" hidden>
   <div class="results-header">
-    <h2><span id="matchCount">0</span> matches</h2>
+    <h2><span id="matchCount">0</span> <span class="results-label">matches</span></h2>
     <div class="result-tools">
       <input type="text" id="filterText" placeholder="Filter…">
-      <button type="button" id="hideSeen" class="ghost" title="Hide seen">⊝</button>
-      <button type="button" id="exportCsv" class="ghost" title="Export CSV">CSV</button>
-      <button type="button" id="bulkOpen" class="ghost" title="Open top 10">↗</button>
+      <button type="button" id="hideSeen" title="Hide seen">⊝</button>
+      <button type="button" id="exportCsv" title="Export CSV">CSV</button>
+      <button type="button" id="bulkOpen" title="Open top 10">↗</button>
     </div>
   </div>
-  <p class="kbd-hint">Keys: <kbd>j</kbd>/<kbd>k</kbd> move • <kbd>o</kbd> open • <kbd>x</kbd> mark seen • <kbd>b</kbd> block • <kbd>n</kbd> note • <kbd>/</kbd> filter</p>
+  <div id="kbd-hint" class="kbd-hint" hidden>
+    <kbd>j</kbd>/<kbd>k</kbd> move
+    · <kbd>o</kbd> open
+    · <kbd>x</kbd> seen
+    · <kbd>b</kbd> block
+    · <kbd>p</kbd> pin
+    · <kbd>c</kbd> compare
+    · <kbd>n</kbd> note
+    · <kbd>w</kbd> watch
+    · <kbd>/</kbd> filter
+  </div>
   <div id="fetish-summary" class="fetish-summary" hidden></div>
   <div id="cards-list" role="list"></div>
 </section>

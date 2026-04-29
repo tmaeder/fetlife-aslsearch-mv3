@@ -156,7 +156,7 @@ async function refreshLists() {
   state.prefs = p;
   state.homeLocation = p.homeLocation;
   document.getElementById("moreDetails").open = !!p.moreOpen;
-  document.getElementById("qf-distance").hidden = !p.homeLocation;
+  const distEl = document.getElementById("maxKm"); if (distEl) distEl.hidden = !p.homeLocation;
   // gather recent search nicknames for cross-search dedupe badge
   const hist = await historyStore.list();
   const recent = new Set();
@@ -896,6 +896,10 @@ document.getElementById("hideSeen")?.addEventListener("click", () => {
   state.hideSeen = !state.hideSeen;
   document.getElementById("hideSeen").classList.toggle("active", state.hideSeen);
   renderTable();
+});
+document.getElementById("kbd-toggle")?.addEventListener("click", () => {
+  const el = document.getElementById("kbd-hint");
+  if (el) el.hidden = !el.hidden;
 });
 document.getElementById("bulkOpen").addEventListener("click", async () => {
   const rows = visibleRows().slice(0, 10);
