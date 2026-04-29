@@ -384,7 +384,7 @@ function markResultsChanged() {
 function memoVersioned(fn) {
   let cached;
   return () => {
-    if (cached?.v === state._resultsVersion) return cached.value;
+    if (cached && cached.v === state._resultsVersion) return cached.value;
     cached = { v: state._resultsVersion, value: fn() };
     return cached.value;
   };
