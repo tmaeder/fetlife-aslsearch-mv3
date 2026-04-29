@@ -116,4 +116,55 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
   }
 });
 
+async function refreshVault() {
+  const r = await chrome.runtime.sendMessage({ type: "vault:status" });
+  const status = document.getElementById("vault-status");
+  const enableRow = document.getElementById("vault-enable-row");
+  const unlockRow = document.getElementById("vault-unlock-row");
+  if (!r?.enabled) {
+    status.textContent = "Disabled · notes stored as plaintext.";
+    enableRow.hidden = false;
+    unlockRow.hidden = true;
+  } else if (r.unlocked) {
+    status.textContent = "Enabled and unlocked for this Chrome session.";
+    enableRow.hidden = true;
+    unlockRow.hidden = false;
+  } else {
+    status.textContent = "Enabled — locked. Existing notes are unreadable until you unlock.";
+    enableRow.hidden = true;
+    unlockRow.hidden = false;
+  }
+}
+
+document.getElementById("vault-enable").addEventListener("click", async () => {
+  const pass = document.getElementById("vault-pass").value;
+  const r = await chrome.runtime.sendMessage({ type: "vault:enable", passphrase: pass });
+  if (r?.ok) {
+    document.getElementById("vault-pass").value = "";
+    setStatus("Vault enabled and unlocked.", "ok");
+    await refreshVault();
+  } else {
+    setStatus("Enable failed: " + (r?.error || "unknown"), "error");
+  }
+});
+
+document.getElementById("vault-unlock").addEventListener("click", async () => {
+  const pass = document.getElementById("vault-unlock-pass").value;
+  const r = await chrome.runtime.sendMessage({ type: "vault:unlock", passphrase: pass });
+  if (r?.ok) {
+    document.getElementById("vault-unlock-pass").value = "";
+    setStatus("Vault unlocked.", "ok");
+    await refreshVault();
+  } else {
+    setStatus("Unlock failed: " + (r?.error || "unknown"), "error");
+  }
+});
+
+document.getElementById("vault-lock").addEventListener("click", async () => {
+  await chrome.runtime.sendMessage({ type: "vault:lock" });
+  setStatus("Vault locked.", "ok");
+  await refreshVault();
+});
+
 load();
+refreshVault();

@@ -93,8 +93,11 @@
   async function injectNoteOverlay() {
     if (!isProfilePage(location)) return;
     const slug = profileSlug();
-    const all = (await chrome.storage.local.get("notes")).notes || {};
-    const note = all[slug];
+    let note = null;
+    try {
+      const r = await chrome.runtime.sendMessage({ type: "notes:get", nickname: slug });
+      note = r?.note || null;
+    } catch { return; }
     if (!note?.text) return;
     if (document.querySelector(".flal-note")) return;
     const box = document.createElement("div");

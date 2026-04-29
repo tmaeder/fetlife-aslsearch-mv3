@@ -5,7 +5,8 @@
 //   - Context menu "Search similar"
 //   - Auto-clear cache on schedule (paranoid mode)
 
-import { savedSearches, scheduled, prefs, cache, profileWatches } from "../storage/store.js";
+import { savedSearches, scheduled, prefs, cache, profileWatches, notes } from "../storage/store.js";
+import { vault } from "../storage/vault.js";
 import { parseProfile } from "../search/profile-fetch.js";
 import { parseSearchPage } from "../search/parser.js";
 import { urlForPage } from "../search/crawler.js";
@@ -118,6 +119,30 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.type === "profile:open") {
     if (!isFetlifeUrl(msg.url)) { sendResponse({ ok: false, error: "url not on fetlife.com" }); return false; }
     openProfile(msg.url, msg.newTab).then(() => sendResponse({ ok: true })).catch(e => sendResponse({ ok: false, error: e.message }));
+    return true;
+  }
+  if (msg?.type === "notes:get") {
+    notes.get(msg.nickname).then(note => sendResponse({ note }))
+      .catch(() => sendResponse({ note: null }));
+    return true;
+  }
+  if (msg?.type === "vault:status") {
+    Promise.all([vault.isEnabled(), vault.isUnlocked()])
+      .then(([enabled, unlocked]) => sendResponse({ enabled, unlocked }));
+    return true;
+  }
+  if (msg?.type === "vault:enable") {
+    vault.enable(msg.passphrase).then(() => sendResponse({ ok: true }))
+      .catch(e => sendResponse({ ok: false, error: e.message }));
+    return true;
+  }
+  if (msg?.type === "vault:unlock") {
+    vault.unlock(msg.passphrase).then(() => sendResponse({ ok: true }))
+      .catch(e => sendResponse({ ok: false, error: e.message }));
+    return true;
+  }
+  if (msg?.type === "vault:lock") {
+    vault.lock().then(() => sendResponse({ ok: true }));
     return true;
   }
 });

@@ -658,6 +658,14 @@ function openComparePanel() {
   body.appendChild(table);
 }
 async function editNote(nick) {
+  const v = await chrome.runtime.sendMessage({ type: "vault:status" });
+  if (v?.enabled && !v.unlocked) {
+    const pass = prompt("Note vault is locked. Enter passphrase to unlock for this Chrome session:");
+    if (!pass) return;
+    const unlock = await chrome.runtime.sendMessage({ type: "vault:unlock", passphrase: pass });
+    if (!unlock?.ok) { setStatus("Unlock failed: " + (unlock?.error || "unknown"), "error"); return; }
+    state.notesMap = await notes.all();
+  }
   const dlg = document.getElementById("note-dialog");
   document.getElementById("note-target").textContent = "for " + nick;
   document.getElementById("note-text").value = state.notesMap[nick]?.text || "";

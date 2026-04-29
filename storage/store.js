@@ -3,6 +3,8 @@
 //   local: seen, blocked, pinned, notes, history, cache, profileWatches, crawlResume
 //   sync:  savedSearches, scheduled, homeLocation, prefs
 
+import { vault } from "./vault.js";
+
 const L = chrome.storage.local;
 const S = chrome.storage.sync;
 
@@ -77,11 +79,27 @@ export const blocked = {
 };
 
 export const notes = {
-  async all() { return get(L, "notes", {}); },
+  async _raw() { return get(L, "notes", {}); },
+  async all() {
+    const cur = await this._raw();
+    if (!await vault.isEnabled()) return cur;
+    if (!await vault.isUnlocked()) return {};
+    const out = {};
+    for (const [nick, entry] of Object.entries(cur)) {
+      try { out[nick] = { ...entry, text: await vault.decrypt(entry.text) }; }
+      catch { /* skip undecryptable */ }
+    }
+    return out;
+  },
   async get(nick) { return (await this.all())[nick] || null; },
   async set(nick, text) {
-    const cur = await this.all();
-    if (!text) delete cur[nick]; else cur[nick] = { text, ts: Date.now() };
+    const cur = await this._raw();
+    if (!text) {
+      delete cur[nick];
+    } else {
+      const stored = (await vault.isEnabled()) ? await vault.encrypt(text) : text;
+      cur[nick] = { text: stored, ts: Date.now() };
+    }
     await set(L, "notes", cur);
   },
 };

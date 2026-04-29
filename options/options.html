@@ -29,6 +29,21 @@
   </fieldset>
 
   <fieldset>
+    <legend>Note vault (encrypts private notes at rest)</legend>
+    <p class="hint">When enabled, your private notes are encrypted with a passphrase you choose (AES-GCM, PBKDF2-SHA-256, 210k iterations). The unlock key is held only in <code>chrome.storage.session</code> and is wiped when you close Chrome. <strong>Forgetting the passphrase makes existing notes unreadable.</strong> Other lists (seen / blocked / pinned) remain plaintext.</p>
+    <div class="row" id="vault-status-row"><span id="vault-status" class="hint">Loading…</span></div>
+    <div class="row" id="vault-enable-row" hidden>
+      <input type="password" id="vault-pass" placeholder="passphrase (≥ 8 chars)" style="flex:1">
+      <button type="button" id="vault-enable">Enable</button>
+    </div>
+    <div class="row" id="vault-unlock-row" hidden>
+      <input type="password" id="vault-unlock-pass" placeholder="passphrase" style="flex:1">
+      <button type="button" id="vault-unlock">Unlock</button>
+      <button type="button" id="vault-lock">Lock now</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
     <legend>Privacy</legend>
     <div class="row"><label class="cb"><input type="checkbox" id="paranoidMode"> Paranoid mode (auto-clear cache after TTL)</label></div>
     <div class="row"><label>Cache TTL (hours)<input type="number" id="cacheTtlHours" min="0" max="720" style="width:80px"></label></div>
