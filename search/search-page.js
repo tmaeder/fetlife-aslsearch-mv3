@@ -63,7 +63,6 @@ function renderAvatar(r, td) {
   img.className = "avatar";
   img.src = r.avatarUrl;
   img.alt = "";
-  img.referrerPolicy = "no-referrer";
   td.appendChild(img);
 }
 
@@ -182,7 +181,7 @@ function applyForm(s) {
   document.getElementById("supporter").value = s.supporter == null ? "" : String(s.supporter);
   document.getElementById("expandSynonyms").checked = !!s.expandSynonyms;
   document.getElementById("useCache").checked = s.useCache !== false;
-  document.getElementById("deepEnable").checked = !!s.deepEnable;
+  // (deepEnable is now derived — no checkbox to restore.)
   document.getElementById("bioRegex").value = s.bioRegex || "";
   document.getElementById("fetishesAny").value = (s.fetishesAny || []).join(", ");
   const setChips = (id, values) => {
@@ -231,7 +230,6 @@ function readForm() {
     expandSynonyms: document.getElementById("expandSynonyms").checked,
     useCache: document.getElementById("useCache").checked,
     incognito: document.getElementById("incognito")?.checked || false,
-    deepEnable: document.getElementById("deepEnable").checked,
     bioRegex: document.getElementById("bioRegex").value.trim(),
     fetishesAny: csvList(document.getElementById("fetishesAny").value),
     orientationAny: [...document.querySelectorAll("#orientationChips input:checked")].map(i => i.value),
@@ -241,6 +239,13 @@ function readForm() {
     minFriends: numOrNull("minFriends"),
     verifiedOnly: document.getElementById("verifiedOnly")?.checked || false,
     supporterOnly: document.getElementById("supporterOnly")?.checked || false,
+    // Deep-filter mode is auto-enabled whenever any deep-only filter has a
+    // value. The user no longer has to remember to tick a separate checkbox.
+    get deepEnable() {
+      return !!(this.bioRegex || this.fetishesAny.length || this.orientationAny.length
+        || this.lookingForAny.length || this.accountType || this.relationshipStatus
+        || this.minFriends != null || this.verifiedOnly || this.supporterOnly);
+    },
     maxKm: numOrNull("maxKm"),
     maxPages: numOrNull("maxPages") ?? 10,
     maxMatches: numOrNull("maxMatches") ?? 200,
@@ -278,7 +283,6 @@ function buildCard(r, idx) {
     img.className = "avatar";
     img.src = r.avatarUrl;
     img.alt = "";
-    img.referrerPolicy = "no-referrer";
     card.appendChild(img);
   } else {
     const ph = document.createElement("div");
@@ -610,7 +614,6 @@ function openComparePanel() {
     if (!r.avatarUrl) return document.createTextNode("");
     const img = document.createElement("img");
     img.src = r.avatarUrl;
-    img.referrerPolicy = "no-referrer";
     img.style.cssText = "width:40px;height:40px;border-radius:50%;object-fit:cover";
     return img;
   }
@@ -780,7 +783,11 @@ async function runSearch(ev) {
         return;
       }
     }
-    if (state.results.length > 0) setStatus(`Crawl done. ${state.results.length} matches.${form.incognito ? " 🕶" : ""}`, "ok");
+    if (state.results.length > 0) {
+      setStatus(`Crawl done. ${state.results.length} matches.${form.incognito ? " 🕶" : ""}`, "ok");
+      setFiltersCollapsed(true);
+      document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
     if (!form.incognito) {
       await cache.set(effectiveQuery, criteriaForCache(form), state.results);
       await postProcess(form);
@@ -897,6 +904,7 @@ document.getElementById("hideSeen")?.addEventListener("click", () => {
   document.getElementById("hideSeen").classList.toggle("active", state.hideSeen);
   renderTable();
 });
+document.getElementById("filters-edit")?.addEventListener("click", () => setFiltersCollapsed(false));
 document.getElementById("kbd-toggle")?.addEventListener("click", () => {
   const el = document.getElementById("kbd-hint");
   if (el) el.hidden = !el.hidden;
@@ -1237,10 +1245,28 @@ function summarizeCriteria(c) {
   if (c.ageMin || c.ageMax) bits.push(`${c.ageMin || ""}-${c.ageMax || ""}`);
   if (c.sexes?.length) bits.push(c.sexes.join("/"));
   if (c.roles?.length) bits.push(c.roles.slice(0, 3).join("/"));
+  if (c.locationSubstring) bits.push("📍" + c.locationSubstring);
   if (c.locationsAny?.length) bits.push("📍" + c.locationsAny.slice(0, 2).join(","));
+  if (c.orientationAny?.length) bits.push("⚧" + c.orientationAny.slice(0, 2).join(","));
+  if (c.lookingForAny?.length) bits.push("→" + c.lookingForAny.slice(0, 2).join(","));
   if (c.deepEnable) bits.push("deep");
   if (c.verifiedOnly) bits.push("✓");
   return bits.join(" · ");
+}
+
+// Collapse the quick-filters panel and show a "Edit filters" summary pill.
+function setFiltersCollapsed(collapsed) {
+  const quick = document.getElementById("quick-panel");
+  const edit = document.getElementById("filters-edit");
+  if (!quick || !edit) return;
+  quick.hidden = collapsed;
+  edit.hidden = !collapsed;
+  if (collapsed) {
+    const f = readForm();
+    const summary = summarizeCriteria(f) || "No filters";
+    document.getElementById("filters-edit-summary").textContent = summary;
+  }
+  try { localStorage.setItem("flal_filtersCollapsed", collapsed ? "1" : "0"); } catch {}
 }
 
 // Init
@@ -1270,5 +1296,6 @@ function summarizeCriteria(c) {
       await chrome.storage.local.remove("pendingNick");
     }
     await checkResume();
+    if (localStorage.getItem("flal_filtersCollapsed") === "1") setFiltersCollapsed(true);
   } catch (e) { surfaceError(e.message, e.stack); }
 })();

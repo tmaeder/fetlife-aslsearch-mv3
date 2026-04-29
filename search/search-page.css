@@ -732,3 +732,25 @@ dialog#note-dialog::backdrop { background: rgba(0,0,0,0.5); }
 
 /* Tweak quick container in dense mode */
 form.simple { padding: 14px 16px 0; }
+
+/* ── Filters collapsed pill ──────────────────────────────────────── */
+.filters-edit {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--fg-2);
+  font-size: 12px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.filters-edit:hover { color: var(--fg); border-color: var(--border-2); }
+.filters-edit-cta { color: var(--fg-3); font-size: 11px; }
+
+/* Avatar fallback styling for broken loads */
+.card img.avatar { background: var(--surface-2); }

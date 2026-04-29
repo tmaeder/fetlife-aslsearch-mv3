@@ -40,7 +40,12 @@
   <div id="empty-hint" class="hint-banner" hidden></div>
   <div id="parse-warning" class="banner warn" hidden></div>
 
-  <div class="quick">
+  <button type="button" id="filters-edit" class="filters-edit" hidden>
+    <span id="filters-edit-summary">No filters</span>
+    <span class="filters-edit-cta">Edit ▾</span>
+  </button>
+
+  <div class="quick" id="quick-panel">
     <div class="qf qf-age">
       <span class="qf-label">Age</span>
       <input type="number" id="ageMin" min="18" max="120" placeholder="–">
@@ -96,8 +101,7 @@
         <label class="cb"><input type="checkbox" id="incognito"> 🕶 Incognito</label>
 
         <fieldset class="sub-fs">
-          <legend>Deep filter (visits each profile)</legend>
-          <label class="cb"><input type="checkbox" id="deepEnable"> Enable deep filtering</label>
+          <legend>Deep filter — auto-runs when any field below is set (visits each profile)</legend>
           <label>Bio regex<input type="text" id="bioRegex" placeholder="e.g. consultant|swiss"></label>
           <label>Fetishes (any of)<input type="text" id="fetishesAny" placeholder="e.g. rope, impact"></label>
           <label>Orientation
