@@ -1,25 +1,21 @@
 // Deep profile fetcher.
-// Verified live 2026-04-28: profile pages embed structured JSON in
+// Profile pages embed structured JSON in
 //   <... data-component="UserProfile" data-props="...">
 // containing { dataCore, dataCurrentUserRelation, dataCommunityLists }.
-// We parse that JSON directly rather than scrape the rendered DOM.
+
+import { extractDataProps } from "./data-props.js";
 
 const TTL_MS = 24 * 60 * 60 * 1000;
+const PROFILE_CACHE_MAX = 500;
 const profileCache = new Map();
-
-const ENTITY_MAP = { "&quot;": '"', "&amp;": "&", "&#39;": "'", "&lt;": "<", "&gt;": ">", "&apos;": "'" };
-function decodeEntities(s) { return s.replace(/&(?:quot|amp|#39|lt|gt|apos);/g, m => ENTITY_MAP[m] || m); }
-
-function extractProps(html, componentName) {
-  const re = new RegExp(`data-component="${componentName}"[\\s\\S]{0,500000}?data-props="([^"]+)"`);
-  const m = html.match(re);
-  if (!m) return null;
-  try { return JSON.parse(decodeEntities(m[1])); } catch { return null; }
-}
 
 export async function fetchProfile(nickname, signal) {
   const cached = profileCache.get(nickname);
-  if (cached && Date.now() - cached.ts < TTL_MS) return cached.data;
+  if (cached && Date.now() - cached.ts < TTL_MS) {
+    profileCache.delete(nickname);
+    profileCache.set(nickname, cached);
+    return cached.data;
+  }
   const url = `https://fetlife.com/${encodeURIComponent(nickname)}`;
   let html;
   try {
@@ -32,12 +28,16 @@ export async function fetchProfile(nickname, signal) {
     html = await res.text();
   }
   const data = parseProfile(html, nickname);
+  if (profileCache.size >= PROFILE_CACHE_MAX) {
+    const oldestKey = profileCache.keys().next().value;
+    if (oldestKey) profileCache.delete(oldestKey);
+  }
   profileCache.set(nickname, { ts: Date.now(), data });
   return data;
 }
 
 export function parseProfile(html, nickname) {
-  const props = extractProps(html, "UserProfile");
+  const props = extractDataProps(html, "UserProfile");
   if (!props?.dataCore) {
     return {
       nickname,

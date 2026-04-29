@@ -8,7 +8,7 @@
 import { savedSearches, scheduled, prefs, cache, profileWatches } from "../storage/store.js";
 import { parseProfile } from "../search/profile-fetch.js";
 import { parseSearchPage } from "../search/parser.js";
-import { SEARCH_URL, PLACE_URL, GROUP_URL, isPlaceQuery, isGroupQuery } from "../content/selectors.js";
+import { urlForPage } from "../search/crawler.js";
 import { buildPredicate } from "../search/filters.js";
 
 const PAT_ALARM = "pat-refresh";
@@ -138,10 +138,10 @@ async function openProfile(url, forceNewTab) {
 }
 
 // Fetch a fetlife.com URL via chrome.scripting.executeScript inside an open
-// fetlife.com tab. That gives us same-origin fetch (cookies attach automatically)
-// without the bandwidth cost of navigating + hydrating the page. FetLife embeds
-// the search results as JSON in a <... data-component="SearchUserList" data-props="..."> attribute,
-// so we don't need to render — just fetch the SSR HTML and extract data-props.
+// fetlife.com tab. Same-origin fetch attaches the user's session cookie
+// (SameSite=Lax) without the bandwidth cost of rendering the page. The SSR
+// HTML embeds list data as JSON in a `data-component` attribute, so we just
+// fetch and parse the string.
 
 let scrapeTabId = null;
 
@@ -213,8 +213,8 @@ async function maybeClearCache() {
 }
 
 async function tickWatchers() {
-  await tickSavedSearchWatchers();
-  await tickProfileWatchers();
+  // Independent — run in parallel.
+  await Promise.allSettled([tickSavedSearchWatchers(), tickProfileWatchers()]);
 }
 
 async function tickSavedSearchWatchers() {
@@ -283,9 +283,7 @@ function diffProfile(a, b) {
 }
 
 async function runWatcher(saved, watcher) {
-  const url = isGroupQuery(saved.query) ? GROUP_URL(saved.query, 1)
-            : isPlaceQuery(saved.query) ? PLACE_URL(saved.query, 1)
-            : SEARCH_URL(saved.query, 1);
+  const url = urlForPage(saved.query, 1);
   const r = await flFetch(url);
   if (r.status !== 200) throw new Error("HTTP " + r.status);
   const parsed = parseSearchPage(r.html);

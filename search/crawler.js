@@ -3,7 +3,7 @@ import { parseSearchPage } from "./parser.js";
 import { buildPredicate } from "./filters.js";
 import { crawlResume, cache } from "../storage/store.js";
 
-function urlForPage(query, page) {
+export function urlForPage(query, page) {
   if (isGroupQuery(query)) return GROUP_URL(query, page);
   if (isPlaceQuery(query)) return PLACE_URL(query, page);
   return SEARCH_URL(query, page);
@@ -102,7 +102,6 @@ export async function* crawl({
   const inflight = new Map(); // page → promise
   let nextPage = startPage;
   let stop = false;
-  let lastPageHadNext = true;
 
   const launch = (page) => {
     const url = urlForPage(query, page);
@@ -145,10 +144,10 @@ export async function* crawl({
     const matched = fresh.filter(pred);
     matchCount += matched.length;
     allMatched.push(...matched);
-    lastPageHadNext = !!parsed.nextHref;
 
-    // Per-page cache flush (resumable on interruption).
-    cache.set(query, criteria, allMatched).catch(() => {});
+    // Per-page cache flush (resumable on interruption). Skip cache write when
+    // nothing matched on this page — allMatched is unchanged, no point rewriting.
+    if (matched.length > 0) cache.set(query, criteria, allMatched).catch(() => {});
     crawlResume.save({ query, criteria, maxPages, maxMatches, page, seen: [...seen], matchCount }).catch(() => {});
 
     yield {
@@ -163,7 +162,7 @@ export async function* crawl({
     if (fresh.length === 0) stop = true;
 
     // Top up: queue the next page unless stopping.
-    if (!stop && nextPage <= maxPages && lastPageHadNext) {
+    if (!stop && nextPage <= maxPages) {
       await sleep(jitter(delayMs, DEFAULT_JITTER_MS));
       if (signal?.aborted) return;
       launch(nextPage++);

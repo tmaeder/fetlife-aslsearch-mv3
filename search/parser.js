@@ -1,28 +1,8 @@
 import { parseASR } from "../content/selectors.js";
+import { decodeEntities, extractDataProps } from "./data-props.js";
 
-// FetLife now ships a Vue-based hydration layer where search/place results are
-// embedded as JSON in a `data-component="SearchUserList" data-props="..."` attr.
-// Parsing the JSON is dramatically more reliable than DOM scraping the SSR
-// shell or waiting for hydration.
-
-const ENTITY_MAP = {
-  "&quot;": '"',
-  "&amp;": "&",
-  "&#39;": "'",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&apos;": "'",
-};
-function decodeEntities(s) {
-  return s.replace(/&(?:quot|amp|#39|lt|gt|apos);/g, m => ENTITY_MAP[m] || m);
-}
-
-function extractDataProps(html, componentName) {
-  const re = new RegExp(`data-component="${componentName}"[\\s\\S]{0,400000}?data-props="([^"]+)"`);
-  const m = html.match(re);
-  if (!m) return null;
-  try { return JSON.parse(decodeEntities(m[1])); } catch { return null; }
-}
+// FetLife embeds list-style results (search/place/group) as JSON in a
+// `data-component=... data-props="..."` attribute. We extract that JSON.
 
 const KNOWN_LIST_COMPONENTS = ["SearchUserList", "GroupMembers", "MemberList", "KinksterList", "UserList", "PlaceUserList"];
 
@@ -57,11 +37,8 @@ function getNextHref(html) {
 
 function getTotalCount(html) {
   // "Kinksters 1 - 20 of 2,012"
-  const m = html.match(/of\s*([\d,]+)\s*&[lg]t;?\s*Perv|of\s*([\d,]+)<\/span>/i)
-        || html.match(/\d+\s*-\s*\d+\s*of\s*([\d,]+)/);
-  if (!m) return null;
-  const num = m[1] || m[2];
-  return num ? parseInt(num.replace(/,/g, ""), 10) : null;
+  const m = html.match(/\d+\s*-\s*\d+\s*of\s*([\d,]+)/);
+  return m ? parseInt(m[1].replace(/,/g, ""), 10) : null;
 }
 
 export function parseSearchPage(html) {

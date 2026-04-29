@@ -373,6 +373,26 @@ function buildCard(r, idx) {
 
 function fold(s) { return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
 
+// Bump on every state.results mutation. Memoized derivers below check this.
+function markResultsChanged() {
+  state._resultsVersion = (state._resultsVersion || 0) + 1;
+  // Drop cached search-blob — recomputed lazily next render.
+  for (const r of state.results) if (r._blob !== undefined) r._blob = undefined;
+}
+function memoVersioned(fn) {
+  let cached;
+  return () => {
+    if (cached?.v === state._resultsVersion) return cached.value;
+    cached = { v: state._resultsVersion, value: fn() };
+    return cached.value;
+  };
+}
+const getDupAvatars = memoVersioned(() => dedupeMap(state.results));
+function searchBlob(r) {
+  if (r._blob === undefined) r._blob = JSON.stringify(r).toLowerCase();
+  return r._blob;
+}
+
 function visibleRows() {
   const filterLc = state.filterText.toLowerCase();
   const subLc = fold(document.getElementById("locationSubstring")?.value || "");
@@ -380,7 +400,7 @@ function visibleRows() {
   const filtered = state.results
     .filter(r => !state.blockedSet.has(r.nickname))
     .filter(r => !state.hideSeen || !state.seenSet.has(r.nickname))
-    .filter(r => !filterLc || JSON.stringify(r).toLowerCase().includes(filterLc))
+    .filter(r => !filterLc || searchBlob(r).includes(filterLc))
     .filter(r => {
       if (!subLc && !chipsLc.length) return true;
       const loc = fold(r.location || "");
@@ -480,7 +500,7 @@ function renderTable() {
   const list = document.getElementById("cards-list");
   if (!list) return;
   const rows = visibleRows();
-  state.dupAvatars = dedupeMap(state.results);
+  state.dupAvatars = getDupAvatars();
   list.replaceChildren();
   rows.forEach((r, i) => {
     if (state.recentNicks.has(r.nickname)) r.appearedInOtherSearches = true;
@@ -703,6 +723,8 @@ async function runSearch(ev) {
     const hit = await cache.get(effectiveQuery, criteriaForCache(form));
     if (hit) {
       state.results = hit.results;
+
+      markResultsChanged();
       state.cursorIdx = 0;
       renderTable();
       setStatus(`Cached: ${hit.results.length} results from ${new Date(hit.ts).toLocaleString()}.`, "ok");
@@ -731,6 +753,8 @@ async function runSearch(ev) {
     })) {
       if (ev2.type === "page") {
         state.results.push(...ev2.matched);
+
+        markResultsChanged();
         totalSeen += ev2.pageResults.length;
         const total = ev2.total ? ` • pool ${ev2.total.toLocaleString()}` : "";
         setStatus(`Page ${ev2.page} • scanned ${totalSeen} • matched ${ev2.matchCount}${total}`, "running");
@@ -784,6 +808,8 @@ async function postProcess(form) {
       if (g) r.distanceKm = haversineKm(state.homeLocation, g);
     }
     state.results = state.results.filter(r => r.distanceKm == null || r.distanceKm <= form.maxKm);
+
+    markResultsChanged();
     renderTable();
   }
 
@@ -817,6 +843,8 @@ async function postProcess(form) {
       }
     }
     state.results = kept;
+
+    markResultsChanged();
     renderTable();
     setStatus(`Deep filter done. ${kept.length} matches.`, "ok");
   }
@@ -833,6 +861,8 @@ document.getElementById("cancel").addEventListener("click", () => state.abortCtl
 document.getElementById("clear").addEventListener("click", () => {
   document.getElementById("search-form").reset();
   state.results = [];
+
+  markResultsChanged();
   renderTable();
   setStatus("");
 });

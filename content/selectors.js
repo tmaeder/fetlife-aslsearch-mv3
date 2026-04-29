@@ -42,7 +42,6 @@ export function isGroupQuery(s) {
 
 // Parse age, sex, role from composite string like "29M sub", "31M Dom-leaning Switch",
 // "47Man Switch", "29F sub", "70M Bottom", "44M Exploring".
-// Used by parser.js to normalize the `identity` field of SearchUserList JSON.
 export function parseASR(text) {
   if (!text) return null;
   const m = text.trim().match(/^(\d{1,3})\s*([A-Za-z]+?)(?:\s+(.+))?$/);
