@@ -1,6 +1,24 @@
 # Changelog
 
-## Unreleased — declutter pass
+## v0.3.5
+
+- **Filters collapse after a successful search**, replaced with a single pill that summarizes active criteria. Click to re-expand. Persists across reloads.
+- Results auto-**scrollIntoView** as soon as the first matches arrive.
+- **Deep filter auto-enables** when any deep-only field has a value. Removed the explicit "Enable deep filtering" checkbox — it was the cause of orientation / looking-for / fetishes filters silently doing nothing if the user forgot to tick it.
+- **Avatar thumbnails now load**: FetLife's CDN rejects no-referrer requests, so `referrerPolicy="no-referrer"` was making every avatar fail. Removed from `<img>` tags; kept on click-through anchors.
+- Side-panel-on-action-click is now set on **every SW startup**, not just `onInstalled`. Fixes the "icon does nothing" bug after Chrome evicts the service worker.
+- Layout pass: dropped header title text and fetlife.com link; condensed the four drawer buttons to icons (★ ⏱ ⊝ 👁); moved the keyboard-shortcut hint behind a `?` toggle.
+- Memo helper bug fix (`memoVersioned` returned `undefined.value` when both sides were undefined).
+
+## v0.3.4 — denser layout
+
+Internal layout pass; no behavior changes.
+
+## v0.3.3 — minimalist UI
+
+Single-accent palette, hairline dividers, quieter status banner, hover-revealed card actions.
+
+## v0.3.2 — post-declutter
 
 Removed dead code from earlier rewrites that data-props parsing made obsolete.
 
