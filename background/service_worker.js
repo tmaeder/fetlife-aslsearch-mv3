@@ -18,21 +18,29 @@ const CACHE_ALARM = "cache-cleanup";
 const STORAGE_PAT_DATA = "patData";
 const STORAGE_PAT_FETCHED = "patFetchedAt";
 
+// Run on every SW startup (cold or warm) so the side-panel-on-action-click
+// behavior is reliably set even when chrome.runtime.onInstalled doesn't fire
+// (e.g. SW evicted and revived between events). Also done in onInstalled
+// for first-install registration of alarms + context menu.
+chrome.sidePanel?.setPanelBehavior?.({ openPanelOnActionClick: true }).catch(() => {});
+
 chrome.runtime.onInstalled.addListener(async () => {
   chrome.alarms.create(PAT_ALARM, { periodInMinutes: 60 * 24 });
   chrome.alarms.create(WATCH_ALARM, { periodInMinutes: 5 });
   chrome.alarms.create(CACHE_ALARM, { periodInMinutes: 60 });
-  chrome.contextMenus.create({
-    id: "search-similar",
-    title: "FetLife ASL: search similar",
-    contexts: ["link", "page"],
-    documentUrlPatterns: ["https://fetlife.com/*"],
-    targetUrlPatterns: ["https://fetlife.com/*"],
-  });
-  chrome.sidePanel?.setPanelBehavior?.({ openPanelOnActionClick: true }).catch(() => {});
+  try {
+    chrome.contextMenus.create({
+      id: "search-similar",
+      title: "FetLife: search similar",
+      contexts: ["link", "page"],
+      documentUrlPatterns: ["https://fetlife.com/*"],
+      targetUrlPatterns: ["https://fetlife.com/*"],
+    });
+  } catch {}
   refreshPat().catch(() => {});
 });
 
+// Fallback if openPanelOnActionClick failed: open the panel from this gesture.
 chrome.action.onClicked.addListener(async (tab) => {
   try { await chrome.sidePanel.open({ windowId: tab.windowId }); } catch {}
 });
