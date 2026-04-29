@@ -102,6 +102,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg?.type === "fl:fetch") {
+    if (!isFetlifeUrl(msg.url)) { sendResponse({ ok: false, error: "url not on fetlife.com" }); return false; }
     flFetch(msg.url, msg.method || "GET").then(r => sendResponse({ ok: true, ...r }))
       .catch(e => sendResponse({ ok: false, error: e.message }));
     return true;
@@ -115,10 +116,16 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg?.type === "profile:open") {
+    if (!isFetlifeUrl(msg.url)) { sendResponse({ ok: false, error: "url not on fetlife.com" }); return false; }
     openProfile(msg.url, msg.newTab).then(() => sendResponse({ ok: true })).catch(e => sendResponse({ ok: false, error: e.message }));
     return true;
   }
 });
+
+function isFetlifeUrl(u) {
+  if (typeof u !== "string") return false;
+  try { return new URL(u).hostname === "fetlife.com"; } catch { return false; }
+}
 
 // Single managed "preview" tab for profile clicks. Reused on each click.
 let previewTabId = null;

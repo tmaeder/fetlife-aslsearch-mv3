@@ -110,10 +110,16 @@ tools/dev-watch.js              chokidar reminder watcher
 
 - `host_permissions` limited to `fetlife.com` and `nominatim.openstreetmap.org` (latter only if Home location is set).
 - Third-party links carry `rel="noopener noreferrer" referrerpolicy="no-referrer"`.
+- Service-worker validates that `fl:fetch` and `profile:open` URLs are on `fetlife.com` before acting.
+- No `web_accessible_resources` declared — extension UI cannot be embedded by third-party pages.
 - **Per-search incognito** checkbox skips writing to history and cache for sensitive queries.
 - **Paranoid mode** auto-clears search cache after configurable TTL.
 - **Settings → Reset all data** wipes all local + sync storage.
 - **Block / seen / pinned / notes** import + export as JSON for sharing community lists.
+
+### Known data-at-rest exposure
+
+`chrome.storage.local` (notes, blocked, seen, pinned, profileWatches, cache, history, geoCache) and `chrome.storage.sync` (savedSearches, scheduled, prefs) are stored **unencrypted** — that's how Chrome works. They contain identifying information about real people. If you sign into Chrome with sync enabled, Chrome syncs these to your Google account. If your OS user account is compromised, these are readable. Use a separate Chrome profile if this matters; or use **Per-search incognito** + **Paranoid mode** to minimize on-disk traces.
 
 ## PAT-FetLife data source
 
