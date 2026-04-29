@@ -13,7 +13,7 @@ const manifest = JSON.parse(readFileSync(join(root, "manifest.json"), "utf8"));
 const version = manifest.version;
 const distDir = join(root, "dist");
 mkdirSync(distDir, { recursive: true });
-const zipPath = join(distDir, `fetlife-aslsearch-mv3-v${version}.zip`);
+const zipPath = join(distDir, `fetlife-search-v${version}.zip`);
 
 const includes = [
   "manifest.json",

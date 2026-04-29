@@ -119,7 +119,7 @@
       const b = document.createElement("div");
       b.className = "flal-pat-warning";
       b.style.background = "#444";
-      b.textContent = "⊘ You blocked this profile in FetLife ASL Search.";
+      b.textContent = "⊘ You blocked this profile in FetLife Search.";
       const main = document.querySelector("main") || document.body;
       main.prepend(b);
     }

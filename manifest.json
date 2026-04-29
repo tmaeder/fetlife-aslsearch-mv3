@@ -6,7 +6,7 @@
   "description": "__MSG_extDescription__",
   "minimum_chrome_version": "116",
   "action": {
-    "default_title": "FetLife ASL Search"
+    "default_title": "FetLife Search"
   },
   "side_panel": {
     "default_path": "search/search-page.html"

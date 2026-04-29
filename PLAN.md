@@ -1,4 +1,4 @@
-# FetLife ASL Search — improvement plan
+# FetLife Search — improvement plan
 
 30 items grouped by sprint. Each: scope, files, dependencies, effort (S/M/L), risk, acceptance.
 
@@ -202,7 +202,7 @@
 ### 28. Build script + lintable .zip
 - **Files:** `package.json` add `web-ext lint`, `web-ext build`.
 - **Effort:** S
-- **Accept:** `npm run release` produces `dist/fetlife-aslsearch-vX.zip`.
+- **Accept:** `npm run release` produces `dist/fetlife-search-vX.zip`.
 
 ### 29. CI workflow
 - **Files:** `.github/workflows/test.yml` running `npm test` on push.

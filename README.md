@@ -1,6 +1,6 @@
-# FetLife ASL Search (MV3) — v0.3.0
+# FetLife Search (MV3) — v0.3.0
 
-Modern Chrome extension successor to [fabacab/fetlife-aslsearch](https://github.com/fabacab/fetlife-aslsearch). Side-panel ASL filtering, deep-profile filters, place-based search, distance filtering, saved/scheduled watchers with notifications, profile diff watchers, compare panel, avatar duplicate detection, shareable filter URLs, and profile-page tools (TinEye / Google Lens / DDG / Reddit / FabSwingers / PAT-FetLife abuse warnings).
+Modern Chrome extension successor to [fabacab/fetlife-search](https://github.com/fabacab/fetlife-search). Side-panel ASL filtering, deep-profile filters, place-based search, distance filtering, saved/scheduled watchers with notifications, profile diff watchers, compare panel, avatar duplicate detection, shareable filter URLs, and profile-page tools (TinEye / Google Lens / DDG / Reddit / FabSwingers / PAT-FetLife abuse warnings).
 
 No external server, no Google Apps Script, no jQuery. Self-contained.
 
@@ -158,7 +158,7 @@ npm test
 npm install
 npm run dev       # source watcher (prints reload reminders)
 npm run lint      # web-ext lint
-npm run build     # → dist/fetlife-aslsearch-mv3-vX.Y.Z.zip
+npm run build     # → dist/fetlife-search-vX.Y.Z.zip
 npm run release   # test + lint + build
 ```
 

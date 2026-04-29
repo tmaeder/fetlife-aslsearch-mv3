@@ -22,7 +22,7 @@ const watcher = chokidar.watch([
 });
 
 console.log("dev-watch: watching " + relative(process.cwd(), root));
-console.log("Reload chrome://extensions → ↻ on the FetLife ASL Search card after each change.\n");
+console.log("Reload chrome://extensions → ↻ on the FetLife Search card after each change.\n");
 
 watcher.on("all", (event, path) => {
   const ts = new Date().toLocaleTimeString();
